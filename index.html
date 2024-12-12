@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greeting App</title>
+</head>
+<body>
+    <h1>Greeting App</h1>
+    <form id="greetForm">
+        <label for="name">Enter your name:</label>
+        <input type="text" id="name" name="name" required>
+        <button type="submit">Submit</button>
+    </form>
+    <p id="response"></p>
+
+    <script>
+        document.getElementById('greetForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the form from reloading the page
+            const name = document.getElementById('name').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/greet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name }),
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('response').innerText = data.message;
+                } else {
+                    document.getElementById('response').innerText = `Error: ${data.error}`;
+                }
+            } catch (error) {
+                document.getElementById('response').innerText = `Error: Unable to reach the server.`;
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+<foot>
+    <p> Version 1.0.0 </p>
+</foot>
+</html>
