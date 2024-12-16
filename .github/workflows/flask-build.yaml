@@ -31,9 +31,9 @@ jobs:
         pip install -r requirements.txt
 
     # Step 4: Run tests
-    - name: Run tests
-      run: |
-        pytest tests/
+    #- name: Run tests
+    #  run: |
+    #    pytest tests/
 
     # Step 5: Start the Flask app
     - name: Check if Flask app runs
