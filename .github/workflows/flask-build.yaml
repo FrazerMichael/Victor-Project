@@ -101,6 +101,6 @@ jobs:
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         application_name: Flask-test
         environment_name: Flask-test-env
-        version_label: {{ needs.increment-version.outputs.version }}
+        version_label: ${{ needs.increment-version.outputs.version }}
         region: us-east-1
         deployment_package: deploy.zip
