@@ -10,9 +10,49 @@ on:
   workflow_dispatch:
 
 jobs:
+  increment-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump_version.outputs.version}}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Read Current Version
+        id: read_version
+        run: |
+          if [ ! -f version.txt ]; then
+            echo "0.0.0" > version.txt  # Default if version file doesn't exist
+          fi
+          VERSION=$(cat version.txt)
+          echo "Current version is $VERSION"
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      - name: Increment Version
+        id: bump_version
+        run: |
+          IFS='.' read -r -a parts <<< "${{ env.version }}"
+          major=${parts[0]}
+          minor=${parts[1]}
+          patch=${parts[2]}
+          patch=$((patch + 1))  # Increment patch number
+          NEW_VERSION="$major.$minor.$patch"
+          echo "New version is $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+          echo "$NEW_VERSION" > version.txt
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit and Push Version
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add version.txt
+          git commit -m "Increment version to ${{ env.new_version }}"
+          git push
+
   build-and-test:
     runs-on: ubuntu-latest
-
+    needs: increment-version
     steps:
     # Step 1: Checkout code
     - name: Checkout code
@@ -47,6 +87,10 @@ jobs:
       run: |
         pkill -f application.py
 
+  Deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
     - name: Generate deployment package
       run: zip -r deploy.zip . -x '*.git*'
 
@@ -57,6 +101,6 @@ jobs:
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         application_name: Flask-test
         environment_name: Flask-test-env
-        version_label: 12345
+        version_label: {{ needs.increment-version.outputs.version }}
         region: us-east-1
         deployment_package: deploy.zip
