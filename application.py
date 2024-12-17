@@ -1,14 +1,21 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
 
 app = Flask(__name__)
 CORS(app)
 
+def get_version():
+    try:
+        with open("version.txt", "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return "0.0.0"  # Default version if file not found
+
 @app.route('/')
 def index():
-    # Serve the static HTML file (index.html) from the static folder
-    return send_from_directory(app.static_folder, 'index.html')
+    version = get_version()  # Get the current version
+    return render_template("index.html", version=version)
 
 @app.route('/greet', methods=['POST'])
 def greet():
