@@ -42,7 +42,7 @@ jobs:
           echo "New version is $NEW_VERSION"
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
           echo "$NEW_VERSION" > version.txt
-          echo "version=${{ env.new_version }}" >> $GITHUB_OUTPUT
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       - name: Commit and Push Version
         env:
@@ -100,7 +100,7 @@ jobs:
 
     - name: Debug Output
       run: |
-        echo "Version from bump_version: ${{ steps.bump_version.outputs.version }}"
+        echo "Version from bump_version: ${{ needs.bump_version.outputs.version }}"
 
     - name: Generate deployment package
       run: zip -r deploy.zip . -x '*.git*'
