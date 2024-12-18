@@ -98,6 +98,8 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
+    - name: Debug Output
+      run: echo "Version from bump_version: ${{ steps.bump_version.outputs.version }}"
 
     - name: Generate deployment package
       run: zip -r deploy.zip . -x '*.git*'
