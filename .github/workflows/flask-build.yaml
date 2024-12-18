@@ -56,8 +56,7 @@ jobs:
 
       - name: Debug Output
         run: |
-        echo "Version from bump_version:" #
-      # ${{ steps.bump_version.outputs.version }}
+          echo "Version from bump_version: ${{ steps.bump_version.outputs.version }}"
 
   build-and-test:
     runs-on: ubuntu-latest
