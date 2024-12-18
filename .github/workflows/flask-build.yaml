@@ -56,7 +56,8 @@ jobs:
 
       - name: Debug Output
         run: |
-        echo "Version from bump_version: ${{ steps.bump_version.outputs.version }}"
+        echo "Version from bump_version:" #
+      # ${{ steps.bump_version.outputs.version }}
 
   build-and-test:
     runs-on: ubuntu-latest
@@ -104,7 +105,7 @@ jobs:
 
     - name: Debug Output
       run: |
-        echo "Version from bump_version: ${{ needs.bump_version.outputs.version }}"
+        echo "Version from bump_version: ${{ needs.increment-version.outputs.version }}"
 
     - name: Generate deployment package
       run: zip -r deploy.zip . -x '*.git*'
