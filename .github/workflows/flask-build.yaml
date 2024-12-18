@@ -97,9 +97,13 @@ jobs:
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v3
-      
+
     - name: Generate deployment package
       run: zip -r deploy.zip . -x '*.git*'
+
+    - name: print version
+      run: |
+        echo "${{ needs.increment-version.outputs.version }}"
 
     - name: Deploy to EB
       uses: einaregilsson/beanstalk-deploy@v22
