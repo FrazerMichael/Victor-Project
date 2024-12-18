@@ -42,7 +42,7 @@ jobs:
           echo "New version is $NEW_VERSION"
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
           echo "$NEW_VERSION" > version.txt
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "version=${{ env.new_version }}" >> $GITHUB_OUTPUT
 
       - name: Commit and Push Version
         env:
