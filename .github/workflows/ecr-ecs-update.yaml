@@ -46,11 +46,10 @@ jobs:
           SERVICE_NAME=greeter-service1
           IMAGE_NAME=greeting-app/hello-world655
           CLUSTER_NAME=test-greeter-cluster
-           REGION=us-east-1
-          VERSION=5
+          REGION=us-east-1
           ACCOUNT_NUMBER=${{ secrets.AWS_ACCOUNT_ID }}
 
-          NEW_IMAGE=$ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/$IMAGE_NAME:$VERSION
+          NEW_IMAGE=$ACCOUNT_NUMBER.dkr.ecr.$REGION.amazonaws.com/$IMAGE_NAME
           TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "$TASK_NAME" --region "$REGION")
           NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$NEW_IMAGE" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
           NEW_REVISION=$(aws ecs register-task-definition --region "$REGION" --cli-input-json "$NEW_TASK_DEFINITION")
@@ -60,3 +59,10 @@ jobs:
 
           echo "done"
           echo "${TASK_NAME}, Revision: ${NEW_REVISION_DATA}"
+          
+      - name: Update ECS
+        run: |
+          aws ecs update-service \
+            --cluster test-greeter-cluster \
+            --service greeter-service1 \
+            --force-new-deployment
