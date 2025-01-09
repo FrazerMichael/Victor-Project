@@ -42,8 +42,8 @@ jobs:
 
       - name: Update task def
         run: |
-          TASK_NAME=greeter
-          SERVICE_NAME=greeter-service1
+          TASK_NAME=greeter-5000
+          SERVICE_NAME=greeter-lb
           IMAGE_NAME=greeting-app/hello-world655
           CLUSTER_NAME=test-greeter-cluster
           REGION=us-east-1
