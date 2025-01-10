@@ -63,7 +63,7 @@ jobs:
         run: |
           aws ecs update-service \
             --cluster test-greeter-cluster \
-            --service greeter-service1 \
+            --service greeter-lb \
             --force-new-deployment
 
       # Validate the API
