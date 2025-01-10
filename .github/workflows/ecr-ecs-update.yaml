@@ -11,7 +11,6 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -20,7 +19,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::124355670580:role/github-oidc
           aws-region: us-east-1
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -59,10 +58,23 @@ jobs:
 
           echo "done"
           echo "${TASK_NAME}, Revision: ${NEW_REVISION_DATA}"
-          
+
       - name: Update ECS
         run: |
           aws ecs update-service \
             --cluster test-greeter-cluster \
             --service greeter-service1 \
             --force-new-deployment
+
+      # Validate the API
+      - name: Validate API
+        run: |
+          API_URL="http://http://greeter-lb-1024125928.us-east-1.elb.amazonaws.com/validate"
+          RESPONSE=$(curl --write-out "%{http_code}" --silent --output /dev/null $API_URL)
+
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "API Validation Successful"
+          else
+            echo "API Validation Failed with status code: $RESPONSE"
+            exit 1
+          fi

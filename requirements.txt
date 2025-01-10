@@ -4,3 +4,4 @@ gunicorn==21.2.0
 pytest
 boto3==1.28.5
 chalice
+Werkzeug==2.2.3
