@@ -1,31 +1,70 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import os
+from chalicelib import storage_service, recognition_service, translation_service, polly_service
+import base64
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", template_folder="templates")
 CORS(app)
 
-def get_version():
-    try:
-        with open("version.txt", "r") as f:
-            return f.read().strip()
-    except FileNotFoundError:
-        return "0.0.0"  # Default version if file not found
+# Initialize services
+storage_location = 'pic-translate-storage-555'
+storage_service = storage_service.StorageService(storage_location)
+recognition_service = recognition_service.RecognitionService(storage_service)
+translation_service = translation_service.TranslationService()
+polly_service = polly_service.PollyService()
 
 @app.route('/')
-def index():
-    version = get_version()  # Get the current version
-    return render_template("index.html", version=version)
+def home():
+    """Serve the main UI."""
+    return render_template("index.html")
 
-@app.route('/greet', methods=['POST'])
-def greet():
+# Health check endpoint
+@app.route('/validate', methods=['GET'])
+def validate_api():
+    return jsonify({"status": "success", "message": "API is running successfully!"})
+
+# Upload image endpoint
+@app.route('/images', methods=['POST'])
+def upload_image():
+    """Processes file upload and saves file to storage service"""
     data = request.get_json()
-    name = data.get('name')
-    if not name:
-        return jsonify({"error": "Name is required"}), 400
-    return jsonify({"message": f"Hello {name}!"})
+    file_name = data['filename']
+    file_bytes = base64.b64decode(data['filebytes'])
 
+    image_info = storage_service.upload_file(file_bytes, file_name)
+    return jsonify(image_info)
+
+# Translate text in image
+@app.route('/images/<image_id>/translate-text', methods=['POST'])
+def translate_image_text(image_id):
+    """Detects then translates text in the specified image"""
+    data = request.get_json()
+    from_lang = data['fromLang']
+    to_lang = data['toLang']
+    MIN_CONFIDENCE = 80.0
+
+    text_lines = recognition_service.detect_text(image_id)
+    translated_lines = []
+
+    for line in text_lines:
+        if float(line['confidence']) >= MIN_CONFIDENCE:
+            translated_line = translation_service.translate_text(line['text'], from_lang, to_lang)
+            translated_lines.append({
+                'text': line['text'],
+                'translation': translated_line['translatedText'],
+                'boundingBox': line['boundingBox']
+            })
+
+    return jsonify(translated_lines)
+
+# Text-to-speech endpoint
+@app.route('/text-to-speech', methods=['POST'])
+def create_speech():
+    """Converts text to speech and saves the audio"""
+    data = request.get_json()
+    combined_translated_text = data['combined_translated_text']
+    output_file = polly_service.synthesize_speech(' '.join(combined_translated_text))
+    return jsonify({"outputFile": output_file})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
-
+    app.run(host='0.0.0.0', port=5000)
