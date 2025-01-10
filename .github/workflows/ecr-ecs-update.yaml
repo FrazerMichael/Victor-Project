@@ -1,6 +1,9 @@
 name: update ecr and ecs
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
