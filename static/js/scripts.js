@@ -73,12 +73,13 @@ function annotateImage(translations) {
     for (let i = 0; i < translations.length; i++) {
         let translationElem = document.createElement("h6");
         translationElem.appendChild(document.createTextNode(
-            translations[i]["text"] + " -> " + translations[i]["translation"]["translatedText"]
+            // translations[i]["text"] + " -> " + translations[i]["translation"]["translatedText"]
+            translations[i]["text"] + " -> " + translations[i]["translation"]
         ));
         translationsElem.appendChild(document.createElement("hr"));
         translationsElem.appendChild(translationElem);
         // Emander Changes: Push each line of the translated text to the array
-        combined_translated_text.push(translations[i]['translation']['translatedText'])
+        combined_translated_text.push(translations[i]['translation'])
     }
     // Emander Changes: return the array of translated text to be used in the createSpeech function
     return combined_translated_text
