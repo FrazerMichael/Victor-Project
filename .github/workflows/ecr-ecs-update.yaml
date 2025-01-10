@@ -69,7 +69,7 @@ jobs:
       # Validate the API
       - name: Validate API
         run: |
-          API_URL="http://http://greeter-lb-1024125928.us-east-1.elb.amazonaws.com/validate"
+          API_URL="http://greeter-lb-1024125928.us-east-1.elb.amazonaws.com/validate"
           RESPONSE=$(curl --write-out "%{http_code}" --silent --output /dev/null $API_URL)
 
           if [ "$RESPONSE" -eq 200 ]; then
