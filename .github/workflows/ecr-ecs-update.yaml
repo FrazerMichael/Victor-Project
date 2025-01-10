@@ -42,7 +42,7 @@ jobs:
       - name: Update task def
         run: |
           TASK_NAME=greeter-5000
-          SERVICE_NAME=greeter-lb
+          SERVICE_NAME=Image-app
           IMAGE_NAME=greeting-app/hello-world655
           CLUSTER_NAME=test-greeter-cluster
           REGION=us-east-1
@@ -63,7 +63,7 @@ jobs:
         run: |
           aws ecs update-service \
             --cluster test-greeter-cluster \
-            --service greeter-lb \
+            --service Image-app \
             --force-new-deployment
 
       # Validate the API
